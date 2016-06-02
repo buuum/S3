@@ -1,0 +1,28 @@
+{
+  "name": "buuum/s3",
+  "type": "library",
+  "description": "A simple aws s3 class",
+  "homepage": "https://github.com/buuum/S3",
+  "keywords": [
+    "aws s3",
+    "s3"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alfons Martinez",
+      "email": "alfonsmartinezparra@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Buuum\\": "src/S3"
+    }
+  },
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  }
+}
