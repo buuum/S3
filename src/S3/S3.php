@@ -1,5 +1,7 @@
 <?php
 
+namespace Buuum;
+
 class S3
 {
     const ACL_PRIVATE = 'private';
@@ -106,7 +108,7 @@ class S3
 
     /**
      * @param $bucket
-     * @return STDClass
+     * @return \stdClass
      */
     public static function putBucket($bucket)
     {
@@ -121,7 +123,7 @@ class S3
 
     /**
      * @param $bucket
-     * @return STDClass
+     * @return \stdClass
      */
     public static function deleteBucket($bucket)
     {
@@ -137,7 +139,7 @@ class S3
     /**
      * @param $bucket
      * @param $uri
-     * @return STDClass
+     * @return \stdClass
      */
     public static function deleteObject($bucket, $uri)
     {
@@ -153,7 +155,7 @@ class S3
     /**
      * @param $bucket
      * @param $uri
-     * @return STDClass
+     * @return \stdClass
      */
     public static function getObject($bucket, $uri)
     {
@@ -171,7 +173,7 @@ class S3
      * @param $uri
      * @param $bucket
      * @param array $requestHeaders
-     * @return STDClass
+     * @return \stdClass
      */
     public static function putObjectUrl($url, $uri, $bucket, $requestHeaders = [])
     {
@@ -184,12 +186,12 @@ class S3
      * @param $uri
      * @param $bucket
      * @param array $requestHeaders
-     * @return STDClass
+     * @return \stdClass
      */
     public static function putObjectString($string, $uri, $bucket, $requestHeaders = [])
     {
         if (extension_loaded('fileinfo')) {
-            $file_info = new finfo(FILEINFO_MIME_TYPE);
+            $file_info = new \finfo(FILEINFO_MIME_TYPE);
             $requestHeaders['Content-Type'] = $file_info->buffer($string);
         }
         if (empty($requestHeaders['Content-Type'])) {
@@ -203,7 +205,7 @@ class S3
      * @param $uri
      * @param $bucket
      * @param array $requestHeaders
-     * @return STDClass
+     * @return \stdClass
      */
     public static function putObject($file, $uri, $bucket, $requestHeaders = [])
     {
@@ -221,7 +223,7 @@ class S3
     /**
      * @param bool $sourcefile
      * @param array $headers
-     * @return STDClass
+     * @return \stdClass
      */
     private static function getResponse($sourcefile = false, $headers = [])
     {
@@ -255,7 +257,7 @@ class S3
             }
         }
 
-        $response = new STDClass;
+        $response = new \stdClass();
         $response->error = false;
         $response->body = null;
         $response->headers = [];
@@ -420,7 +422,7 @@ class S3
         }
 
         if (extension_loaded('fileinfo')) {
-            $finfo = new finfo(FILEINFO_MIME);
+            $finfo = new \finfo(FILEINFO_MIME);
             $type = $finfo->file($file);
             $re = "@/(.*?);@";
 
