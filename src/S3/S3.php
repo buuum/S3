@@ -23,7 +23,7 @@ class S3
     private static $secretKey = null;
 
     /**
-     * @var null
+     * @var mixed
      */
     private static $bucket = false;
 
@@ -59,7 +59,9 @@ class S3
     {
         self::$accessKey = $accessKey;
         self::$secretKey = $secretKey;
-        self::$bucket = $bucket;
+        if ($bucket) {
+            self::setBucket($bucket);
+        }
     }
 
     /**
@@ -91,15 +93,18 @@ class S3
      */
     public static function setBucket($bucket)
     {
+        if (substr($bucket, -1) == '/') {
+            $bucket = substr($bucket, 0, -1);
+        }
         self::$bucket = $bucket;
     }
 
     /**
-     * @param $bucket
+     * @return mixed
      */
-    public static function getBucket($bucket)
+    public static function getBucket()
     {
-        self::$bucket = $bucket;
+        return self::$bucket;
     }
 
     /**
@@ -137,7 +142,7 @@ class S3
     {
         self::$request = [
             'method' => 'PUT',
-            'bucket' => self::getBucket($bucket),
+            'bucket' => self::getBucketName($bucket),
             'uri'    => ''
         ];
 
@@ -152,7 +157,7 @@ class S3
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => self::getBucket($bucket),
+            'bucket' => self::getBucketName($bucket),
             'uri'    => ''
         ];
 
@@ -168,7 +173,7 @@ class S3
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => self::getBucket($bucket),
+            'bucket' => self::getBucketName($bucket),
             'uri'    => $uri
         ];
 
@@ -184,7 +189,7 @@ class S3
     {
         self::$request = [
             'method' => 'GET',
-            'bucket' => self::getBucket($bucket),
+            'bucket' => self::getBucketName($bucket),
             'uri'    => $uri
         ];
 
@@ -235,7 +240,7 @@ class S3
 
         self::$request = [
             'method' => 'PUT',
-            'bucket' => self::getBucket($bucket),
+            'bucket' => self::getBucketName($bucket),
             'uri'    => $uri
         ];
 
@@ -559,13 +564,16 @@ class S3
      * @param $bucket
      * @return string
      */
-    private static function getBucket($bucket)
+    private static function getBucketName($bucket)
     {
-        if(substr($bucket, 0, 1) == '/'){
+        if (substr($bucket, 0, 1) == '/') {
             $bucket = substr($bucket, 1);
         }
         if (self::$bucket) {
-            $bucket = self::$bucket . '/' . $bucket;
+            $bucket = self::getBucket() . '/' . $bucket;
+        }
+        if (substr($bucket, -1) == '/') {
+            $bucket = substr($bucket, 0, -1);
         }
         return $bucket;
     }
