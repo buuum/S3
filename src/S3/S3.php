@@ -23,6 +23,11 @@ class S3
     private static $secretKey = null;
 
     /**
+     * @var null
+     */
+    private static $bucket = false;
+
+    /**
      * @var string
      */
     private static $acl = self::ACL_PUBLIC_READ;
@@ -48,11 +53,13 @@ class S3
     /**
      * @param $accessKey
      * @param $secretKey
+     * @param $bucket
      */
-    public static function setAuth($accessKey, $secretKey)
+    public static function setAuth($accessKey, $secretKey, $bucket = false)
     {
         self::$accessKey = $accessKey;
         self::$secretKey = $secretKey;
+        self::$bucket = $bucket;
     }
 
     /**
@@ -77,6 +84,22 @@ class S3
     public static function setStorage($storage)
     {
         self::$storage = $storage;
+    }
+
+    /**
+     * @param $bucket
+     */
+    public static function setBucket($bucket)
+    {
+        self::$bucket = $bucket;
+    }
+
+    /**
+     * @param $bucket
+     */
+    public static function getBucket($bucket)
+    {
+        self::$bucket = $bucket;
     }
 
     /**
@@ -114,7 +137,7 @@ class S3
     {
         self::$request = [
             'method' => 'PUT',
-            'bucket' => $bucket,
+            'bucket' => self::getBucket($bucket),
             'uri'    => ''
         ];
 
@@ -129,7 +152,7 @@ class S3
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => $bucket,
+            'bucket' => self::getBucket($bucket),
             'uri'    => ''
         ];
 
@@ -145,7 +168,7 @@ class S3
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => $bucket,
+            'bucket' => self::getBucket($bucket),
             'uri'    => $uri
         ];
 
@@ -161,7 +184,7 @@ class S3
     {
         self::$request = [
             'method' => 'GET',
-            'bucket' => $bucket,
+            'bucket' => self::getBucket($bucket),
             'uri'    => $uri
         ];
 
@@ -212,7 +235,7 @@ class S3
 
         self::$request = [
             'method' => 'PUT',
-            'bucket' => $bucket,
+            'bucket' => self::getBucket($bucket),
             'uri'    => $uri
         ];
 
@@ -530,5 +553,20 @@ class S3
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;
+    }
+
+    /**
+     * @param $bucket
+     * @return string
+     */
+    private static function getBucket($bucket)
+    {
+        if(substr($bucket, 0, 1) == '/'){
+            $bucket = substr($bucket, 1);
+        }
+        if (self::$bucket) {
+            $bucket = self::$bucket . '/' . $bucket;
+        }
+        return $bucket;
     }
 }

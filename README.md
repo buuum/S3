@@ -39,7 +39,13 @@ const STORAGE_CLASS_STANDARD_IA = 'STANDARD_IA';
 
 ### INITIALIZE
 ```php
-S3::setAuth($awsAccessKey, $awsSecretKey);
+S3::setAuth($awsAccessKey, $awsSecretKey, $bucket);
+```
+
+### SET and GET default bucket
+```php
+S3::setBucket($bucket);
+S3::getBucket();
 ```
 
 ### SET ACL AND STORAGE (Optional, default acl = S3::ACL_PUBLIC_READ, storage = S3::STORAGE_CLASS_STANDARD)
