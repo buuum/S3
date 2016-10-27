@@ -53,15 +53,11 @@ class S3
     /**
      * @param $accessKey
      * @param $secretKey
-     * @param $bucket
      */
-    public static function setAuth($accessKey, $secretKey, $bucket = false)
+    public static function setAuth($accessKey, $secretKey)
     {
         self::$accessKey = $accessKey;
         self::$secretKey = $secretKey;
-        if ($bucket) {
-            self::setBucket($bucket);
-        }
     }
 
     /**
@@ -142,7 +138,7 @@ class S3
     {
         self::$request = [
             'method' => 'PUT',
-            'bucket' => self::getBucketName($bucket),
+            'bucket' => $bucket,
             'uri'    => ''
         ];
 
@@ -157,7 +153,7 @@ class S3
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => self::getBucketName($bucket),
+            'bucket' => $bucket,
             'uri'    => ''
         ];
 
@@ -165,15 +161,15 @@ class S3
     }
 
     /**
-     * @param $bucket
      * @param $uri
+     * @param $bucket
      * @return \stdClass
      */
-    public static function deleteObject($bucket, $uri)
+    public static function deleteObject($uri, $bucket = false)
     {
         self::$request = [
             'method' => 'DELETE',
-            'bucket' => self::getBucketName($bucket),
+            'bucket' => ($bucket) ? $bucket : self::getBucket(),
             'uri'    => $uri
         ];
 
@@ -181,15 +177,15 @@ class S3
     }
 
     /**
-     * @param $bucket
      * @param $uri
+     * @param $bucket
      * @return \stdClass
      */
-    public static function getObject($bucket, $uri)
+    public static function getObject($uri, $bucket = false)
     {
         self::$request = [
             'method' => 'GET',
-            'bucket' => self::getBucketName($bucket),
+            'bucket' => ($bucket) ? $bucket : self::getBucket(),
             'uri'    => $uri
         ];
 
@@ -199,24 +195,22 @@ class S3
     /**
      * @param $url
      * @param $uri
-     * @param $bucket
      * @param array $requestHeaders
      * @return \stdClass
      */
-    public static function putObjectUrl($url, $uri, $bucket, $requestHeaders = [])
+    public static function putObjectUrl($url, $uri, $requestHeaders = [])
     {
         $string = self::getImg($url);
-        return self::putObjectString($string, $uri, $bucket, $requestHeaders);
+        return self::putObjectString($string, $uri, $requestHeaders);
     }
 
     /**
      * @param $string
      * @param $uri
-     * @param $bucket
      * @param array $requestHeaders
      * @return \stdClass
      */
-    public static function putObjectString($string, $uri, $bucket, $requestHeaders = [])
+    public static function putObjectString($string, $uri, $requestHeaders = [])
     {
         if (extension_loaded('fileinfo')) {
             $file_info = new \finfo(FILEINFO_MIME_TYPE);
@@ -225,22 +219,21 @@ class S3
         if (empty($requestHeaders['Content-Type'])) {
             $requestHeaders['Content-Type'] = 'text/plain';
         }
-        return self::putObject($string, $uri, $bucket, $requestHeaders);
+        return self::putObject($string, $uri, $requestHeaders);
     }
 
     /**
      * @param $file
      * @param $uri
-     * @param $bucket
      * @param array $requestHeaders
      * @return \stdClass
      */
-    public static function putObject($file, $uri, $bucket, $requestHeaders = [])
+    public static function putObject($file, $uri, $requestHeaders = [])
     {
 
         self::$request = [
             'method' => 'PUT',
-            'bucket' => self::getBucketName($bucket),
+            'bucket' => self::getBucket(),
             'uri'    => $uri
         ];
 
@@ -558,23 +551,5 @@ class S3
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;
-    }
-
-    /**
-     * @param $bucket
-     * @return string
-     */
-    private static function getBucketName($bucket)
-    {
-        if (substr($bucket, 0, 1) == '/') {
-            $bucket = substr($bucket, 1);
-        }
-        if (self::$bucket) {
-            $bucket = self::getBucket() . '/' . $bucket;
-        }
-        if (substr($bucket, -1) == '/') {
-            $bucket = substr($bucket, 0, -1);
-        }
-        return $bucket;
     }
 }

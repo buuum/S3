@@ -39,7 +39,7 @@ const STORAGE_CLASS_STANDARD_IA = 'STANDARD_IA';
 
 ### INITIALIZE
 ```php
-S3::setAuth($awsAccessKey, $awsSecretKey, $bucket);
+S3::setAuth($awsAccessKey, $awsSecretKey);
 ```
 
 ### SET and GET default bucket
@@ -59,20 +59,20 @@ S3::setStorage(S3::STORAGE_CLASS_STANDARD);
 Put an object from $_FILES
 
 ```php
-S3::putObject($_FILES['filename']['tmp_name'], $_FILES['filename']['name'], $bucketName);
+S3::putObject($_FILES['filename']['tmp_name'], $_FILES['filename']['name']);
 ```
 
 Put an object from string
 
 ```php
-S3::putObjectString(file_get_contents('bg.jpg'), 'bg.jpg', $bucketName);
+S3::putObjectString(file_get_contents('bg.jpg'), 'bg.jpg');
 ```
 
 Put an object from url
 
 ```php
 $url = 'https://www.enterprise.es/content/dam/ecom/utilitarian/emea/business-rentals/business-rental-band.jpg.wrend.1280.720.jpeg';
-S3::putObjectUrl($url, 'car.jpg', $bucketName);
+S3::putObjectUrl($url, 'car.jpg');
 ```
 
 ### RETRIEVING OBJECTS
@@ -80,7 +80,7 @@ S3::putObjectUrl($url, 'car.jpg', $bucketName);
 Get an object:
 
 ```php
-$response = S3::getObject($bucketName, 'bg.jpg');
+$response = S3::getObject('bg.jpg',$bucketName);
 file_put_contents('bg.jpg', $response->body);
 ```
 
@@ -89,7 +89,7 @@ file_put_contents('bg.jpg', $response->body);
 Delete an object:
 
 ```php
-S3::deleteObject($bucketName, 'bg.jpg');
+S3::deleteObject('bg.jpg',$bucketName);
 ```
 
 ### BUCKETS
