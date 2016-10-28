@@ -620,8 +620,8 @@ class S3
         }
 
         return [
-            'bucket' => $bucket,
-            'file'   => $file
+            $bucket,
+            $file
         ];
 
     }
