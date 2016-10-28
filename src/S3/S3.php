@@ -37,6 +37,16 @@ class S3
     private static $storage = self::STORAGE_CLASS_STANDARD;
 
     /**
+     * @var string
+     */
+    private static $urlhttp;
+
+    /**
+     * @var string
+     */
+    private static $urlhttps;
+
+    /**
      * @var array
      */
     private static $request = [
@@ -58,6 +68,12 @@ class S3
     {
         self::$accessKey = $accessKey;
         self::$secretKey = $secretKey;
+    }
+
+    public static function setUrls($urls)
+    {
+        self::$urlhttp = $urls['http'];
+        self::$urlhttps = $urls['https'];
     }
 
     /**
@@ -92,6 +108,10 @@ class S3
         if (substr($bucket, -1) == '/') {
             $bucket = substr($bucket, 0, -1);
         }
+
+        self::$urlhttp = 'http://' . self::$endpoint . '/' . $bucket;
+        self::$urlhttps = 'https://' . self::$endpoint . '/' . $bucket;
+
         self::$bucket = $bucket;
     }
 
@@ -132,7 +152,7 @@ class S3
 
     /**
      * @param $bucket
-     * @return \stdClass
+     * @return array
      */
     public static function putBucket($bucket)
     {
@@ -147,7 +167,7 @@ class S3
 
     /**
      * @param $bucket
-     * @return \stdClass
+     * @return array
      */
     public static function deleteBucket($bucket)
     {
@@ -160,10 +180,21 @@ class S3
         return self::getResponse();
     }
 
+
+    /**
+     * @param $url
+     * @return array
+     */
+    public static function deleteObjectUrl($url)
+    {
+        list($bucket, $file) = self::parseS3($url);
+        return self::deleteObject($file, $bucket);
+    }
+
     /**
      * @param $uri
      * @param $bucket
-     * @return \stdClass
+     * @return array
      */
     public static function deleteObject($uri, $bucket = false)
     {
@@ -179,7 +210,7 @@ class S3
     /**
      * @param $uri
      * @param $bucket
-     * @return \stdClass
+     * @return array
      */
     public static function getObject($uri, $bucket = false)
     {
@@ -196,7 +227,7 @@ class S3
      * @param $url
      * @param $uri
      * @param array $requestHeaders
-     * @return \stdClass
+     * @return array
      */
     public static function putObjectUrl($url, $uri, $requestHeaders = [])
     {
@@ -208,7 +239,7 @@ class S3
      * @param $string
      * @param $uri
      * @param array $requestHeaders
-     * @return \stdClass
+     * @return array
      */
     public static function putObjectString($string, $uri, $requestHeaders = [])
     {
@@ -226,7 +257,7 @@ class S3
      * @param $file
      * @param $uri
      * @param array $requestHeaders
-     * @return \stdClass
+     * @return array
      */
     public static function putObject($file, $uri, $requestHeaders = [])
     {
@@ -244,7 +275,7 @@ class S3
     /**
      * @param bool $sourcefile
      * @param array $headers
-     * @return \stdClass
+     * @return array
      */
     private static function getResponse($sourcefile = false, $headers = [])
     {
@@ -278,12 +309,9 @@ class S3
             }
         }
 
-        $response = new \stdClass();
-        $response->error = false;
-        $response->body = null;
-        $response->headers = [];
+        $response = [];
 
-        $url = 'http://' . $headers['Host'] . $uri;
+        $url = 'https://' . $headers['Host'] . $uri;
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_USERAGENT, 'S3/php');
@@ -353,16 +381,18 @@ class S3
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
-        if ($data = curl_exec($curl)) {
-            $response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $response->body = $data;
-        } else {
-            $response->error = [
-                'code'     => curl_errno($curl),
-                'message'  => curl_error($curl),
-                'resource' => $resource
-            ];
-        }
+
+        $data = curl_exec($curl);
+        $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        $response['code'] = $code;
+        $response['error'] = (in_array($code, [200, 204])) ? false : true;
+        $response['message'] = $data;
+        $response['url'] = [
+            'default' => $url,
+            'http'    => self::$urlhttp . $uri,
+            'https'   => self::$urlhttps . $uri
+        ];
 
         @curl_close($curl);
 
@@ -551,5 +581,48 @@ class S3
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;
+    }
+
+    /**
+     * @param $url
+     * @return array
+     */
+    private static function parseS3($url)
+    {
+        $bucket = $file = false;
+
+        $re = '@//([^\/]+)/(.*?)$@';
+        preg_match_all($re, $url, $matches);
+        if (!empty($matches[0])) {
+            $bucket = $matches[1][0];
+            $file = $matches[2][0];
+        }
+
+        $re = '@//([^.]+).s3.amazonaws.com/(.*?)$@';
+        preg_match_all($re, $url, $matches);
+        if (!empty($matches[0])) {
+            $bucket = $matches[1][0];
+            $file = $matches[2][0];
+        }
+
+        $re = '@//s3-.*.amazonaws.com/([^\/]+)/(.*?)$@';
+        preg_match_all($re, $url, $matches);
+        if (!empty($matches[0])) {
+            $bucket = $matches[1][0];
+            $file = $matches[2][0];
+        }
+
+        $re = '@//s3.amazonaws.com/([^\/]+)/(.*?)$@';
+        preg_match_all($re, $url, $matches);
+        if (!empty($matches[0])) {
+            $bucket = $matches[1][0];
+            $file = $matches[2][0];
+        }
+
+        return [
+            'bucket' => $bucket,
+            'file'   => $file
+        ];
+
     }
 }

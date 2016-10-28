@@ -48,6 +48,15 @@ S3::setBucket($bucket);
 S3::getBucket();
 ```
 
+## SET urls 
+```php
+$urls = [
+    'http'  => 'http://s3-eu-west-1.amazonaws.com/bucket',
+    'https' => 'https://s3-eu-west-1.amazonaws.com/bucket'
+];
+S3::setUrls($urls);
+```
+
 ### SET ACL AND STORAGE (Optional, default acl = S3::ACL_PUBLIC_READ, storage = S3::STORAGE_CLASS_STANDARD)
 ```php
 S3::setAcl(S3::ACL_PRIVATE);
@@ -75,13 +84,32 @@ $url = 'https://www.enterprise.es/content/dam/ecom/utilitarian/emea/business-ren
 S3::putObjectUrl($url, 'car.jpg');
 ```
 
+Put response 
+
+```
+array(4) {
+  ["code"]=> int(200)
+  ["error"]=>  bool(false)
+  ["message"]=>  string(0) ""
+  ["url"]=>
+  array(3) {
+    ["default"]=>
+    string(53) "https://bucket.s3.amazonaws.com/20130726_173253.jpg"
+    ["http"]=>
+    string(62) "http://s3-eu-west-1.amazonaws.com/bucket/20130726_173253.jpg"
+    ["https"]=>
+    string(63) "https://s3-eu-west-1.amazonaws.com/bucket/20130726_173253.jpg"
+  }
+}
+```
+
 ### RETRIEVING OBJECTS
 
 Get an object:
 
 ```php
 $response = S3::getObject('bg.jpg',$bucketName);
-file_put_contents('bg.jpg', $response->body);
+file_put_contents('bg.jpg', $response->message);
 ```
 
 ### DELETING OBJECTS
@@ -91,6 +119,13 @@ Delete an object:
 ```php
 S3::deleteObject('bg.jpg',$bucketName);
 ```
+
+Delete an object from url:
+
+```php
+S3::deleteObjectUrl('https://s3-eu-west-1.amazonaws.com/bucket/20130726_173253.jpg');
+```
+
 
 ### BUCKETS
 
