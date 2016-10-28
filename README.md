@@ -145,6 +145,13 @@ Delete an empty bucket:
 S3::deleteBucket($bucketName);
 ```
 
+## FILES
+
+Get a list of files in bucket
+```php
+S3::listFiles($bucketName);
+```
+
 ## LICENSE
 
 The MIT License (MIT)

@@ -124,6 +124,35 @@ class S3
     }
 
     /**
+     * @param bool $bucket
+     * @return array|bool
+     */
+    public static function listFiles($bucket = false)
+    {
+        self::$request = [
+            'method' => 'GET',
+            'bucket' => ($bucket) ? $bucket : self::getBucket(),
+            'uri'    => ''
+        ];
+
+        $response = self::getResponse();
+
+        if ($response['error']) {
+            return false;
+        }
+
+        $xml_response = simplexml_load_string($response['message']);
+
+        $results = [];
+        foreach ($xml_response->Contents as $b) {
+            $results[] = (string)$b->Key;
+        }
+
+        return $results;
+
+    }
+
+    /**
      * @return array|bool
      */
     public static function listBuckets()
@@ -136,14 +165,14 @@ class S3
 
         $response = self::getResponse();
 
-        if ($response->error) {
+        if ($response['error']) {
             return false;
         }
 
-        $response->body = simplexml_load_string($response->body);
+        $xml_response = simplexml_load_string($response['message']);
 
         $results = [];
-        foreach ($response->body->Buckets->Bucket as $b) {
+        foreach ($xml_response->Buckets->Bucket as $b) {
             $results[] = (string)$b->Name;
         }
 
