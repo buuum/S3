@@ -344,6 +344,8 @@ class S3
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_USERAGENT, 'S3/php');
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($curl, CURLOPT_URL, $url);
 
         // PUT
