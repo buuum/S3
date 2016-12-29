@@ -84,6 +84,26 @@ $url = 'https://www.enterprise.es/content/dam/ecom/utilitarian/emea/business-ren
 S3::putObjectUrl($url, 'car.jpg');
 ```
 
+Set headers on put objects
+1.- as parameter
+```php
+$headers = [
+    'Cache-Control' => 'max-age=2592000',
+    'Expires'       => 2592000,
+];
+S3::putObjectUrl($url, 'car.jpg', $headers);
+
+```
+2.- as defaultheaders
+```php
+$headers = [
+    'Cache-Control' => 'max-age=2592000',
+    'Expires'       => 2592000,
+];
+S3::setDefaultHeaders($headers);
+
+```
+
 Put response 
 
 ```

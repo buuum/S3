@@ -49,6 +49,11 @@ class S3
     /**
      * @var array
      */
+    private static $defaultHeaders = [];
+
+    /**
+     * @var array
+     */
     private static $request = [
         'method' => '',
         'bucket' => '',
@@ -90,6 +95,14 @@ class S3
     public static function setAcl($acl)
     {
         self::$acl = $acl;
+    }
+
+    /**
+     * @param $headers
+     */
+    public static function setDefaultHeaders($headers)
+    {
+        self::$defaultHeaders = $headers;
     }
 
     /**
@@ -325,7 +338,7 @@ class S3
             'Host'                => self::$endpoint,
             'x-amz-storage-class' => self::$storage,
             'x-amz-acl'           => self::$acl
-        ], $headers);
+        ], $headers, self::$defaultHeaders);
 
         $resource = $uri;
         if ($bucket !== '') {
