@@ -338,7 +338,7 @@ class S3
             'Host'                => self::$endpoint,
             'x-amz-storage-class' => self::$storage,
             'x-amz-acl'           => self::$acl
-        ], $headers, self::$defaultHeaders);
+        ], self::$defaultHeaders, $headers);
 
         $resource = $uri;
         if ($bucket !== '') {
